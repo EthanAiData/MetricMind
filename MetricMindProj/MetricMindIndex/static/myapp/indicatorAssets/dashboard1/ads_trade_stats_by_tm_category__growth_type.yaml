@@ -1,0 +1,40 @@
+metric:
+  name: "品牌品类交易增长类型"
+  english_name: "ads_trade_stats_by_tm_category__growth_type"
+  description: "品牌品类交易中的增长类型。SQL实际定义：按SQL的wow_rate分段；依赖当前有问题的环比结果。"
+  owner: ""
+  business_domain: "电商经营"
+  business_process: "品牌品类经营分析"
+  metric_type: "派生指标"
+  sensitivity: "内部"
+  formula: "按SQL的wow_rate分段；依赖当前有问题的环比结果。"
+  filters:
+    - "dt = ${pdate}"
+    - "recent_days IN (7, 30)"
+  source_tables:
+    - table: "ads.ads_trade_stats_by_tm_category"
+      fields: ["dt", "recent_days", "tm_id", "tm_name", "category1_id", "category1_name", "growth_type"]
+      join_key: "tm_id"
+  dimensions:
+    required: ["dt", "recent_days", "tm_id", "tm_name"]
+    optional: ["category1_id", "category1_name"]
+    commonly: ["category1_id", "category1_name"]
+    occasionally: []
+  granularity:
+    time: "统计日 × 7/30天"
+    entity: "品牌/品类"
+  unit:
+    raw: "分类值"
+    display: "分类值"
+    scale_factor: 1
+  sql_text:
+    sql_from_ads: |
+      SELECT dt, recent_days, tm_id, tm_name, category1_id, category1_name, growth_type
+      FROM ads.ads_trade_stats_by_tm_category
+      WHERE dt = '${pdate}' AND recent_days IN (7, 30);
+    sql_from_topicdws: ""
+    sql_from_generaldws: ""
+    sql_from_dwd: ""
+    sql_from_ods: ""
+  lineage_status: "partial"
+  lineage_note: "逻辑SQL: doris/logical/ads/ads_trade_stats_by_tm_category.sql；上游表: dwd.dwd_trade_order_detail_inc、dim.dim_sku_full。SQL参考查询读取ADS输出，字段级血缘以ETL逻辑为准。"

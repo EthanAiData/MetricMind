@@ -1,0 +1,10 @@
+{
+  "dashboards": [
+    "dashboard1",
+    "dashboard2",
+    "dashboard3",
+    "dashboard4"
+  ],
+  "defaultDashboard": "dashboard1",
+  "defaultLimit": 8
+}

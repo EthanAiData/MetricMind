@@ -1,0 +1,40 @@
+metric:
+  name: "品牌复购品牌复购率"
+  english_name: "ads_repeat_purchase_by_tm__order_repeat_rate"
+  description: "品牌复购中的品牌复购率。SQL实际定义：品牌内窗口购买次数≥2的用户数 / 购买次数≥1的用户数；窗口7/30天。"
+  owner: ""
+  business_domain: "电商经营"
+  business_process: "复购经营"
+  metric_type: "派生指标"
+  sensitivity: "内部"
+  formula: "品牌内窗口购买次数≥2的用户数 / 购买次数≥1的用户数；窗口7/30天。"
+  filters:
+    - "dt = ${pdate}"
+    - "recent_days IN (7, 30)"
+  source_tables:
+    - table: "ads.ads_repeat_purchase_by_tm"
+      fields: ["dt", "recent_days", "tm_id", "tm_name", "order_repeat_rate"]
+      join_key: "tm_id"
+  dimensions:
+    required: ["dt", "recent_days", "tm_id", "tm_name"]
+    optional: []
+    commonly: []
+    occasionally: []
+  granularity:
+    time: "统计日 × 7/30天"
+    entity: "品牌"
+  unit:
+    raw: "0–1小数比例"
+    display: "%"
+    scale_factor: 100
+  sql_text:
+    sql_from_ads: |
+      SELECT dt, recent_days, tm_id, tm_name, order_repeat_rate
+      FROM ads.ads_repeat_purchase_by_tm
+      WHERE dt = '${pdate}' AND recent_days IN (7, 30);
+    sql_from_topicdws: ""
+    sql_from_generaldws: ""
+    sql_from_dwd: ""
+    sql_from_ods: ""
+  lineage_status: "partial"
+  lineage_note: "逻辑SQL: doris/logical/ads/ads_repeat_purchase_by_tm.sql；上游表: dws.dws_trade_user_sku_order_nd。SQL参考查询读取ADS输出，字段级血缘以ETL逻辑为准。"

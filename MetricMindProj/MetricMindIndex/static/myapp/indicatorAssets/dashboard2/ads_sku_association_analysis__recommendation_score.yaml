@@ -1,0 +1,40 @@
+metric:
+  name: "商品关联分析推荐分数"
+  english_name: "ads_sku_association_analysis__recommendation_score"
+  description: "商品关联分析中的推荐分数。SQL实际定义：支持度×0.2 + 置信度×0.5 + 提升度×0.3；仅保留支持度≥0.001。 口径核查：SQL只输出sku_id较小方向且未显式按订单去重；DDL的sequence_pattern、time_interval_avg、association_strength没有由该ETL写入。"
+  owner: ""
+  business_domain: "电商经营"
+  business_process: "商品搭配推荐"
+  metric_type: "派生指标"
+  sensitivity: "内部"
+  formula: "支持度×0.2 + 置信度×0.5 + 提升度×0.3；仅保留支持度≥0.001。"
+  filters:
+    - "dt = ${pdate}"
+    - "recent_days IN (7, 30, 90)"
+  source_tables:
+    - table: "ads.ads_sku_association_analysis"
+      fields: ["dt", "recent_days", "source_sku_id", "source_sku_name", "source_category1_id", "source_category1_name", "target_sku_id", "target_sku_name", "target_category1_id", "target_category1_name", "recommendation_score"]
+      join_key: "source_sku_id"
+  dimensions:
+    required: ["dt", "recent_days", "source_sku_id", "source_sku_name"]
+    optional: ["source_category1_id", "source_category1_name", "target_sku_id", "target_sku_name", "target_category1_id", "target_category1_name"]
+    commonly: ["source_category1_id", "source_category1_name", "target_sku_id"]
+    occasionally: ["target_sku_name", "target_category1_id", "target_category1_name"]
+  granularity:
+    time: "统计日 × 7/30/90天×商品对"
+    entity: "商品对"
+  unit:
+    raw: "分"
+    display: "分"
+    scale_factor: 1
+  sql_text:
+    sql_from_ads: |
+      SELECT dt, recent_days, source_sku_id, source_sku_name, source_category1_id, source_category1_name, target_sku_id, target_sku_name, target_category1_id, target_category1_name, recommendation_score
+      FROM ads.ads_sku_association_analysis
+      WHERE dt = '${pdate}' AND recent_days IN (7, 30, 90);
+    sql_from_topicdws: ""
+    sql_from_generaldws: ""
+    sql_from_dwd: ""
+    sql_from_ods: ""
+  lineage_status: "partial"
+  lineage_note: "逻辑SQL: doris/logical/ads/ads_sku_association_analysis.sql；上游表: dwd.dwd_trade_order_detail_inc、dim.dim_sku_full。SQL参考查询读取ADS输出，字段级血缘以ETL逻辑为准。"

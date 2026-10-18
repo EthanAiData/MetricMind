@@ -1,0 +1,39 @@
+metric:
+  name: "用户价值画像平均订单金额"
+  english_name: "ads_user_value_analysis__average_order_amount"
+  description: "用户价值画像中的平均订单金额。SQL实际定义：累计订单金额 / 累计订单次数；无订单时为0。 口径核查：用户价值含硬编码注册日期/当前日期及单日快照历史比较，部分生命周期字段需复核。"
+  owner: ""
+  business_domain: "电商经营"
+  business_process: "用户价值经营"
+  metric_type: "派生指标"
+  sensitivity: "内部"
+  formula: "累计订单金额 / 累计订单次数；无订单时为0。"
+  filters:
+    - "dt = ${pdate}"
+  source_tables:
+    - table: "ads.ads_user_value_analysis"
+      fields: ["dt", "user_id", "average_order_amount"]
+      join_key: "user_id"
+  dimensions:
+    required: ["dt", "user_id"]
+    optional: []
+    commonly: []
+    occasionally: []
+  granularity:
+    time: "统计日 × 用户粒度"
+    entity: "用户"
+  unit:
+    raw: "个"
+    display: "个"
+    scale_factor: 1
+  sql_text:
+    sql_from_ads: |
+      SELECT dt, user_id, average_order_amount
+      FROM ads.ads_user_value_analysis
+      WHERE dt = '${pdate}';
+    sql_from_topicdws: ""
+    sql_from_generaldws: ""
+    sql_from_dwd: ""
+    sql_from_ods: ""
+  lineage_status: "partial"
+  lineage_note: "逻辑SQL: doris/logical/ads/ads_user_value_analysis.sql；上游表: dws.dws_trade_user_order_td、dws.dws_user_user_login_td。SQL参考查询读取ADS输出，字段级血缘以ETL逻辑为准。"

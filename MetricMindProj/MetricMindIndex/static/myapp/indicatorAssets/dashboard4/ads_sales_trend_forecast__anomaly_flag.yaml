@@ -1,0 +1,39 @@
+metric:
+  name: "销售趋势预测预测异常标记"
+  english_name: "ads_sales_trend_forecast__anomaly_flag"
+  description: "销售趋势预测中的预测异常标记。SQL实际定义：整体趋势绝对值>0.3或季节因子>0.5为异常；品类阈值0.4和0.6。 口径核查：SQL注释声明ARIMA/Prophet，但实际是去年同期基数叠加趋势和固定季节因子的规则公式；季节因子CROSS JOIN需检查重复行。"
+  owner: ""
+  business_domain: "电商经营"
+  business_process: "销售预测与备货"
+  metric_type: "派生指标"
+  sensitivity: "内部"
+  formula: "整体趋势绝对值>0.3或季节因子>0.5为异常；品类阈值0.4和0.6。"
+  filters:
+    - "dt = ${pdate}"
+  source_tables:
+    - table: "ads.ads_sales_trend_forecast"
+      fields: ["dt", "forecast_date", "forecast_type", "dimension_id", "dimension_name", "anomaly_flag"]
+      join_key: "forecast_date"
+  dimensions:
+    required: ["dt", "forecast_date", "forecast_type", "dimension_id"]
+    optional: ["dimension_name"]
+    commonly: ["dimension_name"]
+    occasionally: []
+  granularity:
+    time: "统计日 × 未来7天×整体/一级品类"
+    entity: "整体"
+  unit:
+    raw: "布尔值"
+    display: "布尔值"
+    scale_factor: 1
+  sql_text:
+    sql_from_ads: |
+      SELECT dt, forecast_date, forecast_type, dimension_id, dimension_name, anomaly_flag
+      FROM ads.ads_sales_trend_forecast
+      WHERE dt = '${pdate}';
+    sql_from_topicdws: ""
+    sql_from_generaldws: ""
+    sql_from_dwd: ""
+    sql_from_ods: ""
+  lineage_status: "partial"
+  lineage_note: "逻辑SQL: doris/logical/ads/ads_sales_trend_forecast.sql；上游表: dwd.dwd_trade_order_detail_inc、dim.dim_sku_full。SQL参考查询读取ADS输出，字段级血缘以ETL逻辑为准。"

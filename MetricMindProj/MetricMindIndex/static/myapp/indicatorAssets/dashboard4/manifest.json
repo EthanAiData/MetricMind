@@ -1,0 +1,31 @@
+{
+  "files": [
+    "ads_sales_trend_forecast__anomaly_flag.yaml",
+    "ads_sales_trend_forecast__confidence_level.yaml",
+    "ads_sales_trend_forecast__expected_growth_rate.yaml",
+    "ads_sales_trend_forecast__forecast_interval_lower.yaml",
+    "ads_sales_trend_forecast__forecast_interval_upper.yaml",
+    "ads_sales_trend_forecast__forecast_order_amount.yaml",
+    "ads_sales_trend_forecast__forecast_order_count.yaml",
+    "ads_sales_trend_forecast__forecast_user_count.yaml",
+    "ads_sales_trend_forecast__historical_avg_amount.yaml",
+    "ads_sales_trend_forecast__seasonal_index.yaml",
+    "ads_sales_trend_forecast__trend_coefficient.yaml",
+    "ads_user_value_analysis__account_days.yaml",
+    "ads_user_value_analysis__active_status.yaml",
+    "ads_user_value_analysis__average_order_amount.yaml",
+    "ads_user_value_analysis__frequency_score.yaml",
+    "ads_user_value_analysis__growth_trend.yaml",
+    "ads_user_value_analysis__life_cycle_status.yaml",
+    "ads_user_value_analysis__life_time_value.yaml",
+    "ads_user_value_analysis__login_count_td.yaml",
+    "ads_user_value_analysis__monetary_score.yaml",
+    "ads_user_value_analysis__order_amount_td.yaml",
+    "ads_user_value_analysis__order_count_td.yaml",
+    "ads_user_value_analysis__purchase_cycle_days.yaml",
+    "ads_user_value_analysis__recency_score.yaml",
+    "ads_user_value_analysis__rfm_score.yaml",
+    "ads_user_value_analysis__shopping_preference.yaml",
+    "ads_user_value_analysis__user_value_level.yaml"
+  ]
+}

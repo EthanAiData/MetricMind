@@ -1,0 +1,39 @@
+metric:
+  name: "用户留存留存率"
+  english_name: "ads_user_retention__retention_rate"
+  description: "用户留存中的留存率。SQL实际定义：留存用户数 / 队列新增用户数 ×100，输出百分数值。"
+  owner: ""
+  business_domain: "电商经营"
+  business_process: "用户留存分析"
+  metric_type: "派生指标"
+  sensitivity: "内部"
+  formula: "留存用户数 / 队列新增用户数 ×100，输出百分数值。"
+  filters:
+    - "dt = ${pdate}"
+  source_tables:
+    - table: "ads.ads_user_retention"
+      fields: ["dt", "create_date", "retention_day", "retention_rate"]
+      join_key: "create_date"
+  dimensions:
+    required: ["dt", "create_date", "retention_day"]
+    optional: []
+    commonly: []
+    occasionally: []
+  granularity:
+    time: "统计日 × 注册日期队列"
+    entity: "用户队列"
+  unit:
+    raw: "百分比数值"
+    display: "%"
+    scale_factor: 1
+  sql_text:
+    sql_from_ads: |
+      SELECT dt, create_date, retention_day, retention_rate
+      FROM ads.ads_user_retention
+      WHERE dt = '${pdate}';
+    sql_from_topicdws: ""
+    sql_from_generaldws: ""
+    sql_from_dwd: ""
+    sql_from_ods: ""
+  lineage_status: "partial"
+  lineage_note: "逻辑SQL: doris/logical/ads/ads_user_retention.sql；上游表: dwd.dwd_user_register_inc、dws.dws_user_user_login_td。SQL参考查询读取ADS输出，字段级血缘以ETL逻辑为准。"

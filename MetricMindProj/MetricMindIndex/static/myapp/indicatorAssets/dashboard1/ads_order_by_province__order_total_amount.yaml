@@ -1,0 +1,40 @@
+metric:
+  name: "省份交易订单金额"
+  english_name: "ads_order_by_province__order_total_amount"
+  description: "省份交易中的订单金额。SQL实际定义：按省份和窗口汇总订单金额。"
+  owner: ""
+  business_domain: "电商经营"
+  business_process: "区域经营分析"
+  metric_type: "原子指标"
+  sensitivity: "内部"
+  formula: "按省份和窗口汇总订单金额。"
+  filters:
+    - "dt = ${pdate}"
+    - "recent_days IN (1, 7, 30)"
+  source_tables:
+    - table: "ads.ads_order_by_province"
+      fields: ["dt", "recent_days", "province_id", "province_name", "area_code", "iso_code", "iso_code_3166_2", "order_total_amount"]
+      join_key: "province_id"
+  dimensions:
+    required: ["dt", "recent_days", "province_id", "province_name"]
+    optional: ["area_code", "iso_code", "iso_code_3166_2"]
+    commonly: ["area_code", "iso_code", "iso_code_3166_2"]
+    occasionally: []
+  granularity:
+    time: "统计日 × 1/7/30天"
+    entity: "省份"
+  unit:
+    raw: "元"
+    display: "元"
+    scale_factor: 1
+  sql_text:
+    sql_from_ads: |
+      SELECT dt, recent_days, province_id, province_name, area_code, iso_code, iso_code_3166_2, order_total_amount
+      FROM ads.ads_order_by_province
+      WHERE dt = '${pdate}' AND recent_days IN (1, 7, 30);
+    sql_from_topicdws: ""
+    sql_from_generaldws: ""
+    sql_from_dwd: ""
+    sql_from_ods: ""
+  lineage_status: "partial"
+  lineage_note: "逻辑SQL: doris/logical/ads/ads_order_by_province.sql；上游表: dws.dws_trade_province_order_1d、dws.dws_trade_province_order_nd。SQL参考查询读取ADS输出，字段级血缘以ETL逻辑为准。"

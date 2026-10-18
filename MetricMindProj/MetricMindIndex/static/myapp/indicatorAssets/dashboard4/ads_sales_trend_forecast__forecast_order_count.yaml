@@ -1,0 +1,39 @@
+metric:
+  name: "销售趋势预测预测订单数"
+  english_name: "ads_sales_trend_forecast__forecast_order_count"
+  description: "销售趋势预测中的预测订单数。SQL实际定义：去年对应日订单数 × (1 + 趋势因子 + 星期季节因子)。 口径核查：SQL注释声明ARIMA/Prophet，但实际是去年同期基数叠加趋势和固定季节因子的规则公式；季节因子CROSS JOIN需检查重复行。"
+  owner: ""
+  business_domain: "电商经营"
+  business_process: "销售预测与备货"
+  metric_type: "派生指标"
+  sensitivity: "内部"
+  formula: "去年对应日订单数 × (1 + 趋势因子 + 星期季节因子)。"
+  filters:
+    - "dt = ${pdate}"
+  source_tables:
+    - table: "ads.ads_sales_trend_forecast"
+      fields: ["dt", "forecast_date", "forecast_type", "dimension_id", "dimension_name", "forecast_order_count"]
+      join_key: "forecast_date"
+  dimensions:
+    required: ["dt", "forecast_date", "forecast_type", "dimension_id"]
+    optional: ["dimension_name"]
+    commonly: ["dimension_name"]
+    occasionally: []
+  granularity:
+    time: "统计日 × 未来7天×整体/一级品类"
+    entity: "整体"
+  unit:
+    raw: "个"
+    display: "个"
+    scale_factor: 1
+  sql_text:
+    sql_from_ads: |
+      SELECT dt, forecast_date, forecast_type, dimension_id, dimension_name, forecast_order_count
+      FROM ads.ads_sales_trend_forecast
+      WHERE dt = '${pdate}';
+    sql_from_topicdws: ""
+    sql_from_generaldws: ""
+    sql_from_dwd: ""
+    sql_from_ods: ""
+  lineage_status: "partial"
+  lineage_note: "逻辑SQL: doris/logical/ads/ads_sales_trend_forecast.sql；上游表: dwd.dwd_trade_order_detail_inc、dim.dim_sku_full。SQL参考查询读取ADS输出，字段级血缘以ETL逻辑为准。"

@@ -1,0 +1,14 @@
+{
+  "files": [
+    "ads_activity_stats__reduce_rate.yaml",
+    "ads_coupon_stats__reduce_rate.yaml",
+    "ads_sku_association_analysis__co_purchase_count.yaml",
+    "ads_sku_association_analysis__co_purchase_user_count.yaml",
+    "ads_sku_association_analysis__confidence.yaml",
+    "ads_sku_association_analysis__lift.yaml",
+    "ads_sku_association_analysis__recommendation_score.yaml",
+    "ads_sku_association_analysis__support.yaml",
+    "ads_sku_cart_num_top10_by_cate__cart_num.yaml",
+    "ads_sku_cart_num_top10_by_cate__rk.yaml"
+  ]
+}

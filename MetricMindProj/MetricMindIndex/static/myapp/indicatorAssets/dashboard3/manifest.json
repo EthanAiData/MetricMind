@@ -1,0 +1,25 @@
+{
+  "files": [
+    "ads_new_buyer_stats__new_order_user_count.yaml",
+    "ads_new_buyer_stats__new_payment_user_count.yaml",
+    "ads_page_path__path_count.yaml",
+    "ads_repeat_purchase_by_tm__order_repeat_rate.yaml",
+    "ads_traffic_stats_by_channel__avg_duration_sec.yaml",
+    "ads_traffic_stats_by_channel__avg_page_count.yaml",
+    "ads_traffic_stats_by_channel__bounce_rate.yaml",
+    "ads_traffic_stats_by_channel__sv_count.yaml",
+    "ads_traffic_stats_by_channel__uv_count.yaml",
+    "ads_user_action__cart_count.yaml",
+    "ads_user_action__good_detail_count.yaml",
+    "ads_user_action__home_count.yaml",
+    "ads_user_action__order_count.yaml",
+    "ads_user_action__payment_count.yaml",
+    "ads_user_change__user_back_count.yaml",
+    "ads_user_change__user_churn_count.yaml",
+    "ads_user_retention__new_user_count.yaml",
+    "ads_user_retention__retention_count.yaml",
+    "ads_user_retention__retention_rate.yaml",
+    "ads_user_stats__active_user_count.yaml",
+    "ads_user_stats__new_user_count.yaml"
+  ]
+}

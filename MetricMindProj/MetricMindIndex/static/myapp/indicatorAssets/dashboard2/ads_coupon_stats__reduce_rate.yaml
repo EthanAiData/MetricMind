@@ -1,0 +1,39 @@
+metric:
+  name: "优惠券效果补贴率"
+  english_name: "ads_coupon_stats__reduce_rate"
+  description: "优惠券效果中的补贴率。SQL实际定义：优惠券近30天优惠金额 / 原始金额；SQL未显式处理分母为0。"
+  owner: ""
+  business_domain: "电商经营"
+  business_process: "优惠券营销分析"
+  metric_type: "派生指标"
+  sensitivity: "内部"
+  formula: "优惠券近30天优惠金额 / 原始金额；SQL未显式处理分母为0。"
+  filters:
+    - "dt = ${pdate}"
+  source_tables:
+    - table: "ads.ads_coupon_stats"
+      fields: ["dt", "coupon_id", "coupon_name", "start_date", "rule_name", "reduce_rate"]
+      join_key: "coupon_id"
+  dimensions:
+    required: ["dt", "coupon_id", "coupon_name"]
+    optional: ["start_date", "rule_name"]
+    commonly: ["start_date", "rule_name"]
+    occasionally: []
+  granularity:
+    time: "统计日 × 近30天订单×优惠券"
+    entity: "优惠券"
+  unit:
+    raw: "0–1小数比例"
+    display: "%"
+    scale_factor: 100
+  sql_text:
+    sql_from_ads: |
+      SELECT dt, coupon_id, coupon_name, start_date, rule_name, reduce_rate
+      FROM ads.ads_coupon_stats
+      WHERE dt = '${pdate}';
+    sql_from_topicdws: ""
+    sql_from_generaldws: ""
+    sql_from_dwd: ""
+    sql_from_ods: ""
+  lineage_status: "partial"
+  lineage_note: "逻辑SQL: doris/logical/ads/ads_coupon_stats.sql；上游表: dws.dws_trade_coupon_order_nd。SQL参考查询读取ADS输出，字段级血缘以ETL逻辑为准。"

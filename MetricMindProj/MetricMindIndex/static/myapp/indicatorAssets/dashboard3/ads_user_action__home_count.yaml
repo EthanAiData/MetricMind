@@ -1,0 +1,40 @@
+metric:
+  name: "用户行为阶段首页访问用户数"
+  english_name: "ads_user_action__home_count"
+  description: "用户行为阶段中的首页访问用户数。SQL实际定义：访问home页的去重用户数。"
+  owner: ""
+  business_domain: "电商经营"
+  business_process: "行为转化分析"
+  metric_type: "原子指标"
+  sensitivity: "内部"
+  formula: "访问home页的去重用户数。"
+  filters:
+    - "dt = ${pdate}"
+    - "recent_days IN (1, 7, 30)"
+  source_tables:
+    - table: "ads.ads_user_action"
+      fields: ["dt", "recent_days", "home_count"]
+      join_key: "dt"
+  dimensions:
+    required: ["dt", "recent_days"]
+    optional: []
+    commonly: []
+    occasionally: []
+  granularity:
+    time: "统计日 × 1/7/30天"
+    entity: "整体"
+  unit:
+    raw: "个"
+    display: "个"
+    scale_factor: 1
+  sql_text:
+    sql_from_ads: |
+      SELECT dt, recent_days, home_count
+      FROM ads.ads_user_action
+      WHERE dt = '${pdate}' AND recent_days IN (1, 7, 30);
+    sql_from_topicdws: ""
+    sql_from_generaldws: ""
+    sql_from_dwd: ""
+    sql_from_ods: ""
+  lineage_status: "partial"
+  lineage_note: "逻辑SQL: doris/logical/ads/ads_user_action.sql；上游表: dws.dws_traffic_page_visitor_page_view_1d/nd、dws.dws_trade_user_cart_add_1d/nd、dws.dws_trade_user_order_1d/nd、dws.dws_trade_user_payment_1d/nd。SQL参考查询读取ADS输出，字段级血缘以ETL逻辑为准。"

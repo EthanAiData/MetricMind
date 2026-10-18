@@ -1,0 +1,40 @@
+metric:
+  name: "渠道流量跳出率"
+  english_name: "ads_traffic_stats_by_channel__bounce_rate"
+  description: "渠道流量中的跳出率。SQL实际定义：单页会话数 / 会话数，输出0–1小数。"
+  owner: ""
+  business_domain: "电商经营"
+  business_process: "渠道流量分析"
+  metric_type: "派生指标"
+  sensitivity: "内部"
+  formula: "单页会话数 / 会话数，输出0–1小数。"
+  filters:
+    - "dt = ${pdate}"
+    - "recent_days IN (1, 7, 30)"
+  source_tables:
+    - table: "ads.ads_traffic_stats_by_channel"
+      fields: ["dt", "recent_days", "channel", "bounce_rate"]
+      join_key: "channel"
+  dimensions:
+    required: ["dt", "recent_days", "channel"]
+    optional: []
+    commonly: []
+    occasionally: []
+  granularity:
+    time: "统计日 × 1/7/30天"
+    entity: "渠道"
+  unit:
+    raw: "0–1小数比例"
+    display: "%"
+    scale_factor: 100
+  sql_text:
+    sql_from_ads: |
+      SELECT dt, recent_days, channel, bounce_rate
+      FROM ads.ads_traffic_stats_by_channel
+      WHERE dt = '${pdate}' AND recent_days IN (1, 7, 30);
+    sql_from_topicdws: ""
+    sql_from_generaldws: ""
+    sql_from_dwd: ""
+    sql_from_ods: ""
+  lineage_status: "partial"
+  lineage_note: "逻辑SQL: doris/logical/ads/ads_traffic_stats_by_channel.sql；上游表: dws.dws_traffic_session_page_view_1d。SQL参考查询读取ADS输出，字段级血缘以ETL逻辑为准。"

@@ -1,0 +1,39 @@
+metric:
+  name: "用户留存新增用户数"
+  english_name: "ads_user_retention__new_user_count"
+  description: "用户留存中的新增用户数。SQL实际定义：对应注册日期队列的新增注册用户数。"
+  owner: ""
+  business_domain: "电商经营"
+  business_process: "用户留存分析"
+  metric_type: "原子指标"
+  sensitivity: "内部"
+  formula: "对应注册日期队列的新增注册用户数。"
+  filters:
+    - "dt = ${pdate}"
+  source_tables:
+    - table: "ads.ads_user_retention"
+      fields: ["dt", "create_date", "retention_day", "new_user_count"]
+      join_key: "create_date"
+  dimensions:
+    required: ["dt", "create_date", "retention_day"]
+    optional: []
+    commonly: []
+    occasionally: []
+  granularity:
+    time: "统计日 × 注册日期队列"
+    entity: "用户队列"
+  unit:
+    raw: "个"
+    display: "个"
+    scale_factor: 1
+  sql_text:
+    sql_from_ads: |
+      SELECT dt, create_date, retention_day, new_user_count
+      FROM ads.ads_user_retention
+      WHERE dt = '${pdate}';
+    sql_from_topicdws: ""
+    sql_from_generaldws: ""
+    sql_from_dwd: ""
+    sql_from_ods: ""
+  lineage_status: "partial"
+  lineage_note: "逻辑SQL: doris/logical/ads/ads_user_retention.sql；上游表: dwd.dwd_user_register_inc、dws.dws_user_user_login_td。SQL参考查询读取ADS输出，字段级血缘以ETL逻辑为准。"

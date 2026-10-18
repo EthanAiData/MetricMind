@@ -1,0 +1,40 @@
+metric:
+  name: "省份转化分析GMV贡献率"
+  english_name: "ads_province_conversion_analysis__gmv_contribution_rate"
+  description: "省份转化分析中的GMV贡献率。SQL实际定义：省内订单金额 / 全国订单金额。"
+  owner: ""
+  business_domain: "电商经营"
+  business_process: "区域转化分析"
+  metric_type: "派生指标"
+  sensitivity: "内部"
+  formula: "省内订单金额 / 全国订单金额。"
+  filters:
+    - "dt = ${pdate}"
+    - "recent_days IN (1, 7, 30)"
+  source_tables:
+    - table: "ads.ads_province_conversion_analysis"
+      fields: ["dt", "recent_days", "province_id", "province_name", "region_id", "region_name", "gmv_contribution_rate"]
+      join_key: "province_id"
+  dimensions:
+    required: ["dt", "recent_days", "province_id", "province_name"]
+    optional: ["region_id", "region_name"]
+    commonly: ["region_id", "region_name"]
+    occasionally: []
+  granularity:
+    time: "统计日 × 1/7/30天"
+    entity: "省份"
+  unit:
+    raw: "0–1小数比例"
+    display: "%"
+    scale_factor: 100
+  sql_text:
+    sql_from_ads: |
+      SELECT dt, recent_days, province_id, province_name, region_id, region_name, gmv_contribution_rate
+      FROM ads.ads_province_conversion_analysis
+      WHERE dt = '${pdate}' AND recent_days IN (1, 7, 30);
+    sql_from_topicdws: ""
+    sql_from_generaldws: ""
+    sql_from_dwd: ""
+    sql_from_ods: ""
+  lineage_status: "partial"
+  lineage_note: "逻辑SQL: doris/logical/ads/ads_province_conversion_analysis.sql；上游表: dwd.dwd_trade_order_detail_inc、dwd.dwd_trade_pay_detail_suc_inc、dim.dim_province_full。SQL参考查询读取ADS输出，字段级血缘以ETL逻辑为准。"

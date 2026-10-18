@@ -1,0 +1,39 @@
+metric:
+  name: "活动效果补贴率"
+  english_name: "ads_activity_stats__reduce_rate"
+  description: "活动效果中的补贴率。SQL实际定义：活动近30天优惠金额 / 原始金额；SQL未显式处理分母为0。"
+  owner: ""
+  business_domain: "电商经营"
+  business_process: "活动营销分析"
+  metric_type: "派生指标"
+  sensitivity: "内部"
+  formula: "活动近30天优惠金额 / 原始金额；SQL未显式处理分母为0。"
+  filters:
+    - "dt = ${pdate}"
+  source_tables:
+    - table: "ads.ads_activity_stats"
+      fields: ["dt", "activity_id", "activity_name", "start_date", "reduce_rate"]
+      join_key: "activity_id"
+  dimensions:
+    required: ["dt", "activity_id", "activity_name"]
+    optional: ["start_date"]
+    commonly: ["start_date"]
+    occasionally: []
+  granularity:
+    time: "统计日 × 近30天订单×活动"
+    entity: "活动"
+  unit:
+    raw: "0–1小数比例"
+    display: "%"
+    scale_factor: 100
+  sql_text:
+    sql_from_ads: |
+      SELECT dt, activity_id, activity_name, start_date, reduce_rate
+      FROM ads.ads_activity_stats
+      WHERE dt = '${pdate}';
+    sql_from_topicdws: ""
+    sql_from_generaldws: ""
+    sql_from_dwd: ""
+    sql_from_ods: ""
+  lineage_status: "partial"
+  lineage_note: "逻辑SQL: doris/logical/ads/ads_activity_stats.sql；上游表: dws.dws_trade_activity_order_nd。SQL参考查询读取ADS输出，字段级血缘以ETL逻辑为准。"

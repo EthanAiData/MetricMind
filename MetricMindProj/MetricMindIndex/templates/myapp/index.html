@@ -1,0 +1,557 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>指标智脑中心</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f7fa; color: #1a1a2e; }
+.container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+header { background: linear-gradient(135deg, #355c7d 0%, #6c5b7b 52%, #c06c84 100%); color: white; padding: 32px 0; margin-bottom: 24px; border-radius: 0 0 16px 16px; }
+header .container { display: flex; align-items: center; gap: 16px; }
+header h1 { font-size: 24px; font-weight: 600; }
+header p { opacity: 0.85; font-size: 14px; margin-top: 4px; }
+.search-box { position: relative; margin-bottom: 24px; }
+.search-box input { width: 100%; padding: 14px 20px 14px 44px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 16px; background: white; transition: border-color 0.2s; }
+.search-box input:focus { outline: none; border-color: #355c7d; box-shadow: 0 0 0 3px rgba(53,92,125,0.12); }
+.search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 18px; color: #a0aec0; }
+.search-hint { margin-top: 8px; font-size: 13px; color: #718096; }
+.filters { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+.filter-btn { padding: 6px 14px; border-radius: 20px; border: 1px solid #e2e8f0; background: white; cursor: pointer; font-size: 13px; transition: all 0.2s; }
+.filter-btn:hover { border-color: #355c7d; color: #355c7d; }
+.filter-btn.active { background: #355c7d; color: white; border-color: #355c7d; }
+.metric-list { display: grid; gap: 12px; }
+.metric-card { background: white; border-radius: 12px; padding: 16px 20px; cursor: pointer; transition: all 0.2s; border: 1px solid #e2e8f0; }
+.metric-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-1px); }
+.metric-card .name { font-size: 16px; font-weight: 600; color: #1a1a2e; }
+.metric-card .eng { font-size: 12px; color: #a0aec0; font-family: monospace; margin-left: 8px; }
+.metric-card .desc { font-size: 13px; color: #718096; margin-top: 4px; }
+.metric-card .tags { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+.tag { padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; }
+.tag-process { background: #ebf4ff; color: #3182ce; }
+.tag-type { background: #f0fff4; color: #38a169; }
+.tag-layer { background: #fef5e7; color: #c05621; }
+.tag-lineage { background: #f5f0ff; color: #6b46c1; }
+.stats { font-size: 13px; color: #718096; margin-bottom: 16px; }
+.modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 100; justify-content: center; align-items: flex-start; padding: 40px 20px; overflow-y: auto; }
+.modal-overlay.show { display: flex; }
+.modal { background: white; border-radius: 16px; width: 100%; max-width: 880px; padding: 32px; position: relative; }
+.modal-close { position: absolute; top: 16px; right: 16px; width: 32px; height: 32px; border-radius: 50%; border: none; background: #f1f5f9; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; }
+.modal-close:hover { background: #e2e8f0; }
+.modal h2 { font-size: 20px; margin-bottom: 4px; padding-right: 36px; }
+.modal .english-name { font-size: 13px; color: #718096; font-family: monospace; margin-bottom: 16px; }
+.modal .section { margin-bottom: 20px; }
+.modal .section-title { font-size: 13px; font-weight: 600; color: #355c7d; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid #f1f5f9; }
+.modal .formula { background: #f8fafc; padding: 10px 14px; border-radius: 8px; font-family: monospace; font-size: 14px; word-break: break-all; }
+.modal .filter-list { list-style: none; }
+.modal .filter-list li { padding: 4px 0; font-size: 13px; color: #4a5568; }
+.modal .filter-list li::before { content: "\2022"; color: #355c7d; margin-right: 8px; }
+.modal .source-table { background: #f8fafc; padding: 10px 14px; border-radius: 8px; margin-bottom: 8px; font-size: 13px; }
+.modal .source-table .table-name { font-family: monospace; font-weight: 600; color: #2d3748; }
+.modal .source-table .fields { color: #718096; margin-top: 2px; }
+.sql-tabs { display: flex; gap: 4px; margin-bottom: 0; flex-wrap: wrap; }
+.sql-tab { padding: 6px 12px; border-radius: 6px 6px 0 0; border: 1px solid #e2e8f0; border-bottom: none; background: #f8fafc; cursor: pointer; font-size: 12px; }
+.sql-tab.active { background: #1e293b; color: white; border-color: #1e293b; }
+.sql-tab.disabled { opacity: 0.3; cursor: not-allowed; }
+.sql-block { background: #1e293b; color: #e2e8f0; padding: 16px; border-radius: 0 8px 8px 8px; font-family: "SF Mono", Monaco, "Cascadia Code", monospace; font-size: 12px; line-height: 1.7; overflow-x: auto; white-space: pre-wrap; word-break: break-all; max-height: 320px; overflow-y: auto; }
+.dim-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap; }
+.dim-label { font-size: 12px; color: #718096; min-width: 70px; }
+.dim-tag { padding: 2px 8px; border-radius: 4px; font-size: 12px; background: #edf2f7; color: #4a5568; }
+.empty-state { text-align: center; padding: 60px 20px; color: #a0aec0; background: white; border: 1px solid #e2e8f0; border-radius: 12px; }
+.empty-state .icon { font-size: 42px; margin-bottom: 12px; }
+.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.info-item { font-size: 13px; }
+.info-item .label { color: #718096; }
+.info-item .value { color: #2d3748; font-weight: 500; }
+.error-text { color: #c53030; }
+@media (max-width: 640px) {
+  .container { padding: 16px; }
+  header { padding: 24px 0; }
+  .modal { padding: 24px 18px; }
+  .info-grid { grid-template-columns: 1fr; }
+  .metric-card .eng { display: block; margin-left: 0; margin-top: 4px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <div>
+      <h1>指标智脑中心</h1>
+      <p>置信口径 · 血缘穿透 · ADS到ODS · 保鲜跟随</p>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+  <div class="search-box">
+    <span class="search-icon">⌕</span>
+    <input type="text" id="searchInput" placeholder="搜索指标名称、英文名、描述、口径类型..." disabled>
+    <div class="search-hint" id="searchHint">正在读取 indicatorAssets 下的全部指标 YAML 文件...</div>
+  </div>
+
+  <div class="filters" id="filterBar"></div>
+  <div class="stats" id="stats"></div>
+  <div class="metric-list" id="metricList">
+    <div class="empty-state"><div class="icon">...</div><div>正在加载指标口径</div></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modalContent"></div>
+</div>
+
+<script>
+const ASSET_ROOT = "{% static 'myapp/indicatorAssets' %}".replace(/\/$/, '');
+const ROOT_MANIFEST_FILE = `${ASSET_ROOT}/manifest.json`;
+
+let metrics = [];
+let currentFilter = 'all';
+let defaultDashboard = 'dashboard1';
+let defaultLimit = 8;
+
+const sqlSources = [
+  { key: 'sql_from_ads', label: 'ADS' },
+  { key: 'sql_from_topicdws', label: '专题DWS' },
+  { key: 'sql_from_generaldws', label: '通用DWS' },
+  { key: 'sql_from_dwd', label: 'DWD' },
+  { key: 'sql_from_ods', label: 'ODS' },
+];
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function parseInlineArray(value) {
+  const text = value.trim();
+  if (text === '[]') return [];
+  if (!text.startsWith('[') || !text.endsWith(']')) return [];
+  const body = text.slice(1, -1).trim();
+  if (!body) return [];
+
+  const result = [];
+  let token = '';
+  let quote = null;
+  for (const ch of body) {
+    if ((ch === '"' || ch === "'") && quote === null) {
+      quote = ch;
+      token += ch;
+      continue;
+    }
+    if (ch === quote) {
+      quote = null;
+      token += ch;
+      continue;
+    }
+    if (ch === ',' && quote === null) {
+      result.push(parseScalar(token));
+      token = '';
+      continue;
+    }
+    token += ch;
+  }
+  if (token.trim()) result.push(parseScalar(token));
+  return result;
+}
+
+function parseScalar(value) {
+  const text = String(value ?? '').trim();
+  if (text === '') return '';
+  if (text === '[]') return [];
+  if (text.startsWith('[') && text.endsWith(']')) return parseInlineArray(text);
+  if ((text.startsWith('"') && text.endsWith('"')) || (text.startsWith("'") && text.endsWith("'"))) {
+    return text.slice(1, -1).replace(/\\"/g, '"').replace(/\\'/g, "'");
+  }
+  if (/^-?\d+(\.\d+)?$/.test(text)) return Number(text);
+  return text;
+}
+
+function stripBlockIndent(line) {
+  return line.startsWith('      ') ? line.slice(6) : line.trimEnd();
+}
+
+function parseMetricYaml(text, fileName, source = {}) {
+  const lines = text.replace(/\r\n/g, '\n').split('\n');
+  const metric = {
+    source_tables: [],
+    filters: [],
+    dimensions: {},
+    granularity: {},
+    unit: {},
+    sql_text: {},
+    file_name: fileName,
+    file_path: source.filePath || fileName,
+    dashboard: source.dashboard || '',
+  };
+  let section = '';
+  let currentTable = null;
+
+  for (let i = 0; i < lines.length; i += 1) {
+    const line = lines[i];
+    if (!line.trim() || line.trim() === 'metric:') continue;
+
+    const topMatch = line.match(/^  ([A-Za-z0-9_]+):(?:\s*(.*))?$/);
+    if (topMatch) {
+      const key = topMatch[1];
+      const rawValue = topMatch[2] ?? '';
+      if (rawValue === '') {
+        section = key;
+        if (key === 'filters') metric.filters = [];
+        else if (key === 'source_tables') metric.source_tables = [];
+        else if (key === 'dimensions') metric.dimensions = {};
+        else if (key === 'granularity') metric.granularity = {};
+        else if (key === 'unit') metric.unit = {};
+        else if (key === 'sql_text') metric.sql_text = {};
+      } else {
+        metric[key] = parseScalar(rawValue);
+        section = '';
+      }
+      currentTable = null;
+      continue;
+    }
+
+    if (section === 'filters') {
+      const filterMatch = line.match(/^    -\s+(.*)$/);
+      if (filterMatch) metric.filters.push(parseScalar(filterMatch[1]));
+      continue;
+    }
+
+    if (section === 'source_tables') {
+      const tableMatch = line.match(/^    -\s+table:\s*(.*)$/);
+      if (tableMatch) {
+        currentTable = { table: parseScalar(tableMatch[1]), fields: [], join_key: '' };
+        metric.source_tables.push(currentTable);
+        continue;
+      }
+      const tableFieldMatch = line.match(/^      ([A-Za-z0-9_]+):\s*(.*)$/);
+      if (tableFieldMatch && currentTable) {
+        currentTable[tableFieldMatch[1]] = parseScalar(tableFieldMatch[2]);
+      }
+      continue;
+    }
+
+    if (section === 'dimensions' || section === 'granularity' || section === 'unit') {
+      const nestedMatch = line.match(/^    ([A-Za-z0-9_]+):\s*(.*)$/);
+      if (nestedMatch) metric[section][nestedMatch[1]] = parseScalar(nestedMatch[2]);
+      continue;
+    }
+
+    if (section === 'sql_text') {
+      const sqlMatch = line.match(/^    ([A-Za-z0-9_]+):\s*(.*)$/);
+      if (!sqlMatch) continue;
+
+      const key = sqlMatch[1];
+      const rawValue = sqlMatch[2] ?? '';
+      if (rawValue.trim() === '|') {
+        const block = [];
+        for (i += 1; i < lines.length; i += 1) {
+          const nextLine = lines[i];
+          if (/^    [A-Za-z0-9_]+:/.test(nextLine) || /^  [A-Za-z0-9_]+:/.test(nextLine)) {
+            i -= 1;
+            break;
+          }
+          block.push(stripBlockIndent(nextLine));
+        }
+        metric.sql_text[key] = block.join('\n').trimEnd();
+      } else {
+        metric.sql_text[key] = parseScalar(rawValue);
+      }
+    }
+  }
+
+  return normalizeMetric(metric);
+}
+
+function normalizeMetric(metric) {
+  const sqlText = metric.sql_text || {};
+  sqlSources.forEach(source => {
+    metric[source.key] = sqlText[source.key] || '';
+  });
+  metric.indicator_type = extractIndicatorType(metric);
+  metric.display_name = metric.indicator_type ? `${metric.name} - ${metric.indicator_type}` : metric.name;
+  metric.search_text = [
+    metric.display_name,
+    metric.english_name,
+    metric.description,
+    metric.business_domain,
+    metric.business_process,
+    metric.metric_type,
+    metric.variant,
+    metric.indicator_type,
+    metric.lineage_status,
+    metric.file_name,
+  ].filter(Boolean).join(' ').toLowerCase();
+  return metric;
+}
+
+function extractIndicatorType(metric) {
+  const filters = metric.filters || [];
+  const direct = filters.find(item => /^indicator_type\s*=/.test(item));
+  const matched = direct && direct.match(/indicator_type\s*=\s*'([^']+)'/);
+  return matched ? matched[1] : (metric.variant || '');
+}
+
+async function discoverYamlFiles() {
+  try {
+    const response = await fetch(ROOT_MANIFEST_FILE, { cache: 'no-store' });
+    if (response.ok) {
+      const rootManifest = await response.json();
+      const dashboards = Array.isArray(rootManifest) ? rootManifest : rootManifest.dashboards;
+      if (Array.isArray(dashboards) && dashboards.length > 0) {
+        defaultDashboard = rootManifest.defaultDashboard || dashboards[0] || defaultDashboard;
+        defaultLimit = Number(rootManifest.defaultLimit) || defaultLimit;
+        return loadDashboardFiles(dashboards);
+      }
+    }
+  } catch (error) {
+    // Fall through to root directory-list discovery for lightweight local servers.
+  }
+
+  try {
+    const response = await fetch(`${ASSET_ROOT}/`, { cache: 'no-store' });
+    if (!response.ok) throw new Error('目录不可访问');
+    const html = await response.text();
+    const dashboards = Array.from(html.matchAll(/href="(dashboard[^"/]+)\/"/gi))
+      .map(match => decodeURIComponent(match[1]))
+      .filter(Boolean)
+      .filter((dashboard, index, arr) => arr.indexOf(dashboard) === index)
+      .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+    if (dashboards.length > 0) return loadDashboardFiles(dashboards);
+  } catch (error) {
+    throw new Error(`未找到 YAML 文件，请检查 ${ROOT_MANIFEST_FILE}`);
+  }
+
+  throw new Error(`未找到 YAML 文件，请检查 ${ROOT_MANIFEST_FILE}`);
+}
+
+async function loadDashboardFiles(dashboards) {
+  const groups = await Promise.all(dashboards.map(async dashboard => {
+    const files = await discoverDashboardFiles(dashboard);
+    return files.map(file => {
+      const url = getYamlUrl(file, dashboard);
+      return {
+        dashboard,
+        file,
+        url,
+        filePath: url,
+      };
+    });
+  }));
+  return groups.flat();
+}
+
+async function discoverDashboardFiles(dashboard) {
+  const dashboardDir = `${ASSET_ROOT}/${dashboard}`;
+  try {
+    const response = await fetch(`${dashboardDir}/manifest.json`, { cache: 'no-store' });
+    if (response.ok) {
+      const manifest = await response.json();
+      const files = Array.isArray(manifest) ? manifest : manifest.files;
+      if (Array.isArray(files) && files.length > 0) return files;
+    }
+  } catch (error) {
+    // Fall through to directory-list discovery.
+  }
+
+  const response = await fetch(`${dashboardDir}/`, { cache: 'no-store' });
+  if (!response.ok) throw new Error(`${dashboard} 目录不可访问`);
+  const html = await response.text();
+  const files = Array.from(html.matchAll(/href="([^"]+\.ya?ml)"/gi))
+    .map(match => decodeURIComponent(match[1]).split('/').pop())
+    .filter(Boolean)
+    .filter((file, index, arr) => arr.indexOf(file) === index)
+    .sort();
+  if (files.length === 0) throw new Error(`${dashboard} 未找到 YAML 文件`);
+  return files;
+}
+
+function getYamlUrl(file, dashboard) {
+  if (/^(https?:)?\/\//.test(file) || file.startsWith('/')) return file;
+  if (file.includes('/')) return file;
+  return `${ASSET_ROOT}/${dashboard}/${file}`;
+}
+
+function getYamlFileName(file) {
+  return decodeURIComponent(String(file).split('/').pop());
+}
+
+async function loadMetrics() {
+  const list = document.getElementById('metricList');
+  const stats = document.getElementById('stats');
+  try {
+    const files = await discoverYamlFiles();
+    const loaded = await Promise.all(files.map(async item => {
+      const response = await fetch(item.url, { cache: 'no-store' });
+      if (!response.ok) throw new Error(`${item.url} 读取失败: ${response.status}`);
+      return parseMetricYaml(await response.text(), getYamlFileName(item.file), item);
+    }));
+
+    metrics = loaded;
+    document.getElementById('searchInput').disabled = false;
+    document.getElementById('searchHint').textContent = `支持指标名称、口径类型、英文名、描述关键词模糊搜索 | 共 ${metrics.length} 个 YAML 指标`;
+    buildFilters();
+    filterMetrics();
+  } catch (error) {
+    stats.textContent = '';
+    list.innerHTML = `<div class="empty-state"><div class="icon">!</div><div class="error-text">${escapeHtml(error.message)}</div><div style="margin-top:8px;">请确认通过本地 HTTP 服务访问页面，而不是直接打开 file:// 文件。</div></div>`;
+  }
+}
+
+function buildFilters() {
+  const bar = document.getElementById('filterBar');
+  const indicatorTypes = metrics.map(m => m.indicator_type).filter(Boolean);
+  const uniqueTypes = [...new Set(indicatorTypes)];
+  const buttons = [
+    `<button class="filter-btn active" data-filter="all">全部</button>`,
+    ...uniqueTypes.map(type => `<button class="filter-btn" data-filter="${escapeHtml(type)}">${escapeHtml(type)}</button>`),
+  ];
+  bar.innerHTML = buttons.join('');
+  bar.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => setFilter(btn.dataset.filter, btn));
+  });
+}
+
+function filterMetrics() {
+  const query = document.getElementById('searchInput').value.trim().toLowerCase();
+  const list = document.getElementById('metricList');
+  const sourceMetrics = query ? metrics : metrics.filter(m => m.dashboard === defaultDashboard).slice(0, defaultLimit);
+  const filtered = sourceMetrics.filter(m => {
+    const matchSearch = !query || m.search_text.includes(query);
+    const matchFilter = currentFilter === 'all' || m.indicator_type === currentFilter;
+    return matchSearch && matchFilter;
+  });
+
+  const scopeText = query ? `全量搜索 ${metrics.length} 个指标` : `默认展示 ${defaultLimit} 个指标`;
+  document.getElementById('stats').textContent = `显示 ${filtered.length} 个指标 · ${scopeText}`;
+
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="empty-state"><div class="icon">⌕</div><div>没有找到匹配的指标</div></div>';
+    return;
+  }
+
+  list.innerHTML = filtered.map(m => {
+    const idx = metrics.indexOf(m);
+    const layers = sqlSources.filter(s => m[s.key]).map(s => s.label);
+    return `<div class="metric-card" data-idx="${idx}">
+      <div><span class="name">${escapeHtml(m.display_name)}</span><span class="eng">${escapeHtml(m.english_name || '')}</span></div>
+      <div class="desc">${escapeHtml(m.description || '')}</div>
+      <div class="tags">
+        <span class="tag tag-process">${escapeHtml(m.business_process || '-')}</span>
+        <span class="tag tag-type">${escapeHtml(m.metric_type || '-')}</span>
+        ${m.lineage_status ? `<span class="tag tag-lineage">${escapeHtml(m.lineage_status)}</span>` : ''}
+        ${layers.map(l => `<span class="tag tag-layer">${escapeHtml(l)}</span>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+
+  list.querySelectorAll('.metric-card').forEach(card => {
+    card.addEventListener('click', () => showDetail(Number(card.dataset.idx)));
+  });
+}
+
+function setFilter(filter, btn) {
+  currentFilter = filter;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  filterMetrics();
+}
+
+function renderDimRow(label, values) {
+  if (!values || values.length === 0) return '';
+  return `<div class="dim-row"><span class="dim-label">${escapeHtml(label)}:</span>${values.map(d => `<span class="dim-tag">${escapeHtml(d)}</span>`).join('')}</div>`;
+}
+
+function showDetail(idx) {
+  const m = metrics[idx];
+  const overlay = document.getElementById('modalOverlay');
+  const content = document.getElementById('modalContent');
+  const availableSql = sqlSources.filter(s => m[s.key]);
+  const firstSql = availableSql.length > 0 ? availableSql[0] : null;
+  const dims = m.dimensions || {};
+  const unit = m.unit || {};
+
+  const dimHtml = Object.keys(dims).length > 0 ? `
+    <div class="section">
+      <div class="section-title">维度信息</div>
+      ${renderDimRow('必选维度', dims.required)}
+      ${renderDimRow('可选维度', dims.optional)}
+      ${renderDimRow('常用维度', dims.commonly)}
+      ${renderDimRow('偶用维度', dims.occasionally)}
+    </div>` : '';
+
+  content.innerHTML = `
+    <button class="modal-close" id="modalCloseBtn">&times;</button>
+    <h2>${escapeHtml(m.display_name)}</h2>
+    <div class="english-name">${escapeHtml([m.english_name, m.variant, m.file_name].filter(Boolean).join(' · '))}</div>
+    <div class="info-grid" style="margin-bottom:16px;">
+      <div class="info-item"><span class="label">业务域: </span><span class="value">${escapeHtml(m.business_domain || '-')}</span></div>
+      <div class="info-item"><span class="label">业务过程: </span><span class="value">${escapeHtml(m.business_process || '-')}</span></div>
+      <div class="info-item"><span class="label">指标类型: </span><span class="value">${escapeHtml(m.metric_type || '-')}</span></div>
+      <div class="info-item"><span class="label">时间粒度: </span><span class="value">${escapeHtml((m.granularity || {}).time || '-')}</span></div>
+      <div class="info-item"><span class="label">实体粒度: </span><span class="value">${escapeHtml((m.granularity || {}).entity || '-')}</span></div>
+      <div class="info-item"><span class="label">展示单位: </span><span class="value">${escapeHtml(unit.display || '-')}</span></div>
+    </div>
+    <div class="section">
+      <div class="section-title">计算公式</div>
+      <div class="formula">${escapeHtml(m.formula || '-')}</div>
+    </div>
+    ${(m.filters || []).length ? `<div class="section">
+      <div class="section-title">过滤条件</div>
+      <ul class="filter-list">${m.filters.map(f => `<li>${escapeHtml(f)}</li>`).join('')}</ul>
+    </div>` : ''}
+    ${(m.source_tables || []).length ? `<div class="section">
+      <div class="section-title">来源表</div>
+      ${m.source_tables.map(t => `<div class="source-table"><div class="table-name">${escapeHtml(t.table || '')}</div><div class="fields">字段: ${escapeHtml((t.fields || []).join(', '))}</div>${t.join_key ? `<div class="fields">关联键: ${escapeHtml(t.join_key)}</div>` : ''}</div>`).join('')}
+    </div>` : ''}
+    ${dimHtml}
+    ${m.lineage_note ? `<div class="section">
+      <div class="section-title">血缘说明</div>
+      <div class="formula">${escapeHtml(m.lineage_note)}</div>
+    </div>` : ''}
+    ${firstSql ? `<div class="section">
+      <div class="section-title">SQL口径</div>
+      <div class="sql-tabs">
+        ${sqlSources.map(s => `<span class="sql-tab ${m[s.key] ? (s.key === firstSql.key ? 'active' : '') : 'disabled'}" data-sql-key="${escapeHtml(s.key)}">${escapeHtml(s.label)}</span>`).join('')}
+      </div>
+      <pre class="sql-block" id="sqlBlock">${escapeHtml(m[firstSql.key])}</pre>
+    </div>` : ''}
+  `;
+
+  content.querySelector('#modalCloseBtn').addEventListener('click', closeModal);
+  content.querySelectorAll('.sql-tab:not(.disabled)').forEach(tab => {
+    tab.addEventListener('click', () => switchSql(tab, tab.dataset.sqlKey, idx));
+  });
+  overlay.classList.add('show');
+}
+
+function switchSql(tab, key, idx) {
+  const m = metrics[idx];
+  document.querySelectorAll('.sql-tab').forEach(t => t.classList.remove('active'));
+  tab.classList.add('active');
+  document.getElementById('sqlBlock').textContent = m[key];
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('show');
+}
+
+document.getElementById('searchInput').addEventListener('input', filterMetrics);
+document.getElementById('modalOverlay').addEventListener('click', event => {
+  if (event.target === document.getElementById('modalOverlay')) closeModal();
+});
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape') closeModal();
+});
+
+loadMetrics();
+</script>
+</body>
+</html>

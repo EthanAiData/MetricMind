@@ -1,0 +1,14 @@
+{
+  "files": [
+    "ads_new_buyer_stats__new_payment_user_count.yaml",
+    "ads_repeat_purchase_by_tm__order_repeat_rate.yaml",
+    "ads_trade_stats__order_count.yaml",
+    "ads_trade_stats__order_refund_count.yaml",
+    "ads_trade_stats__order_refund_user_count.yaml",
+    "ads_trade_stats__order_total_amount.yaml",
+    "ads_trade_stats__order_user_count.yaml",
+    "ads_traffic_stats_by_channel__bounce_rate.yaml",
+    "ads_traffic_stats_by_channel__uv_count.yaml",
+    "ads_user_retention__retention_rate.yaml"
+  ]
+}

@@ -1,0 +1,40 @@
+metric:
+  name: "渠道流量平均会话浏览页数"
+  english_name: "ads_traffic_stats_by_channel__avg_page_count"
+  description: "渠道流量中的平均会话浏览页数。SQL实际定义：平均每会话浏览页数后取整。"
+  owner: ""
+  business_domain: "电商经营"
+  business_process: "渠道流量分析"
+  metric_type: "派生指标"
+  sensitivity: "内部"
+  formula: "平均每会话浏览页数后取整。"
+  filters:
+    - "dt = ${pdate}"
+    - "recent_days IN (1, 7, 30)"
+  source_tables:
+    - table: "ads.ads_traffic_stats_by_channel"
+      fields: ["dt", "recent_days", "channel", "avg_page_count"]
+      join_key: "channel"
+  dimensions:
+    required: ["dt", "recent_days", "channel"]
+    optional: []
+    commonly: []
+    occasionally: []
+  granularity:
+    time: "统计日 × 1/7/30天"
+    entity: "渠道"
+  unit:
+    raw: "个"
+    display: "个"
+    scale_factor: 1
+  sql_text:
+    sql_from_ads: |
+      SELECT dt, recent_days, channel, avg_page_count
+      FROM ads.ads_traffic_stats_by_channel
+      WHERE dt = '${pdate}' AND recent_days IN (1, 7, 30);
+    sql_from_topicdws: ""
+    sql_from_generaldws: ""
+    sql_from_dwd: ""
+    sql_from_ods: ""
+  lineage_status: "partial"
+  lineage_note: "逻辑SQL: doris/logical/ads/ads_traffic_stats_by_channel.sql；上游表: dws.dws_traffic_session_page_view_1d。SQL参考查询读取ADS输出，字段级血缘以ETL逻辑为准。"
